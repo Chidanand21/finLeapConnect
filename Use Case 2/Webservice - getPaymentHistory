@@ -1,0 +1,22 @@
+@RestResource(urlMapping='/v1/getPaymentHistory/*')
+//@RestResource(urlMapping='/services/data/v20.0/sobjects/Payment_History__c/Reference_Id__c/*')
+
+global with sharing class getPaymentHistory {
+    @Httpget
+    global static list<Payment_History__c> fetchPaymentHistory(){
+        RestRequest req = RestContext.request; 
+        RestResponse res = Restcontext.response;
+        Id refId = req.requestURI.substring(req.requestURI.lastIndexOf('/')+1);
+        System.debug('=refId='+refId);
+        
+        //Handling Query Exception
+        try{
+            list<Payment_History__c> lstpaymentHistory =[Select id , Customer_Account_Number__c,Payment_Date__c,Name,Amount__c from Payment_History__c where Customer__r.Id=:refId];
+            return lstpaymentHistory;
+        }
+        catch(Exception ex){
+            System.debug('=Exception='+ex); 
+            return null;
+        }
+    }
+}
