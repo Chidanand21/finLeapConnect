@@ -1,0 +1,70 @@
+@isTest
+public class SendCustomerUsingRESTAPITest {
+    
+    Public Static testmethod void customerRestApi()
+    {  
+        
+        Test.setMock(HttpCalloutMock.class, new RestApiMock()); 
+        
+        HttpResponse  response = New HttpResponse ();
+        test.startTest();
+        try{
+            SendCustomerUsingRESTAPI.callgetpaymentHistory('6676');
+        }
+        catch (Exception e) {
+            HandleCustomException.LogException(e);
+        }  
+        test.stopTest();
+    }
+    
+    Public Static testmethod void caseTest(){
+        Account acc = new Account();
+        acc.Name='SFDC';
+        try{
+            insert acc;
+        }
+        catch (Exception e) {
+            //HandleCustomException.LogException(e);
+        }  
+        Case c = new Case();
+        c.AccountId = acc.Id;
+        try{
+            insert c;
+        }
+        catch (Exception e) {
+            HandleCustomException.LogException(e);
+        }  
+        SendCustomerUsingRESTAPI.findReferenceId(c.Id);
+    }
+    Public Static testmethod void policyTest(){
+        Account acc = new Account();
+        acc.Name='SFDC';
+        try{
+            insert acc;
+        }
+        catch (Exception e) {
+            HandleCustomException.LogException(e);
+        }  
+        Case c = new Case();
+        c.AccountId = acc.Id;
+        try{
+            insert c;
+        }
+        catch (Exception e) {
+            HandleCustomException.LogException(e);
+        }  
+        Policy__c p =new Policy__c();
+        p.Name='SFDC';
+        p.Case__c= c.Id;
+        try{
+            insert p;
+        }
+        catch (Exception e) {
+            HandleCustomException.LogException(e);
+        }  
+        SendCustomerUsingRESTAPI.policies(c.Id);
+    }   
+    
+    
+    
+}
