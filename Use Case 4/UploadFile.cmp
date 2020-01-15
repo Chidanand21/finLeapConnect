@@ -1,0 +1,69 @@
+<aura:component controller="SimplyfyFilesCntrl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >  
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+    <aura:attribute name="files" type="ContentDocument[]"/>  
+    <aura:attribute name="currentVersion" type="ContentDocument[]"/>
+    <aura:attribute name="recordId" type="string"/>
+    <aura:attribute name="other" type="boolean"/>
+    <aura:attribute name="accept" type="List" default="['.jpg', '.jpeg','.pdf','.csv','.xlsx']"/>  
+    <aura:attribute name="multiple" type="Boolean" default="true"/>  
+    <aura:attribute name="disabled" type="Boolean" default="false"/>  
+    <div class="slds">  
+        <div style="border-left: 1px solid rgb(221, 219, 218);  
+                    border-right: 1px solid rgb(221, 219, 218);  
+                    border-bottom: 1px solid rgb(221, 219, 218);  
+                    border-top: 1px solid rgb(221, 219, 218);">  
+            <div class="slds-page-header" style="border-radius: 0px; border-right: 0px;border-left: 0px;border-top: 0px;  
+                                                 box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0.1);">  
+                Files  
+            </div>  
+            <div class="slds-grid"> 
+                <div class="slds-col slds-size--3-of-12">
+                    <lightning:select name="select1" label="File Type" required="true" onchange="{!c.checkfileType}" aura:id="fileName">
+                        <option value="">choose one...</option>
+                        <option value="PSD2 License">PSD2 License</option>
+                        <option value="Terms and Conditions">Terms and Conditions</option>
+                        <option value="Draft Solution">Draft Solution</option>
+                        <option value="Final Solution">Final Solution</option>
+                        <option value="Pricing Table">Pricing Table</option>
+                        <option value="Other File">Other File</option>
+                    </lightning:select>&nbsp; &nbsp;
+                </div>
+                <aura:if isTrue="{!v.other}">
+                <div class="slds-col slds-size--3-of-12" >  
+                    <lightning:input type="text" name="input1" label="Enter File Name" aura:id="otherFileName" onchange="{!c.findOtherfileCurrentVersion}"/>  
+                </div>&nbsp; &nbsp; 
+                </aura:if>
+                <div class="slds-col slds-size---of-12">  
+                    <lightning:fileUpload label="" multiple="{!v.multiple}"   
+                                          accept="{!v.accept}" recordId="{!v.recordId}"   
+                                          onuploadfinished="{!c.UploadFinished}" />  
+                </div>  
+            </div><br/>
+            <aura:if isTrue="{!v.currentVersion.length > 0}">
+            <div>
+			<h1>Current Version of the selected Document</h1>   
+            <table class="slds-table slds-table--bordered">  
+                <thead>  
+                    <tr>  
+                        <th>Title</th>  
+                        <th>FileType</th>  
+                        <th>Description</th> 
+                        <th>Modified Date</th>
+                    </tr>  
+                </thead>  
+                <tbody>  
+                    <aura:iteration items="{!v.currentVersion}" var="f">  
+                        <tr>  
+                            <td> <a href="" id="{!f.Id}" onclick="{!c.OpenFile}">{!f.Title}</a></td>  
+                            <td>{!f.FileType}</td>  
+                            <td>{!f.Description}</td>  
+                            <td>{!f.ContentModifiedDate}</td> 
+                        </tr>  
+                    </aura:iteration>  
+                </tbody>  
+            </table>      
+            </div><br/>
+            </aura:if> 
+        </div>  
+    </div>  
+</aura:component>
