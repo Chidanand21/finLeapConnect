@@ -1,0 +1,183 @@
+public class SendCustomerUsingRESTAPI {
+    private final String clientId = '3MVG9n_HvETGhr3D0z.BeeDnilAQcVMIy6vG6HKS..qpl6G1ignAnXOCZUJXgBufTDYWX2coFsNNg1hMaPeuW';
+    private final String clientSecret = '425D4405C57BB507BD106A13BA9DE45FB830CA8509223890497AC060578B9FA0';
+    private final String username = 'chidanandflsource@gmail.com';
+    private final String password = 'Chidanand9$';
+    public class deserializeResponse
+    {
+        public String id;
+        public String access_token;
+    }
+    public String ReturnAccessToken (SendCustomerUsingRESTAPI customer)
+        //public String ReturnAccessToken ()
+        
+    {
+        String reqbody = 'grant_type=password&client_id='+clientId+'&client_secret='+clientSecret+'&username='+username+'&password='+password;
+        Http h = new Http();
+        HttpRequest req = new HttpRequest();
+        req.setBody(reqbody);
+        req.setMethod('POST');
+        req.setEndpoint('https://ap16.salesforce.com/services/oauth2/token');
+        HttpResponse res = h.send(req);
+        deserializeResponse resp1 = (deserializeResponse)JSON.deserialize(res.getbody(),deserializeResponse.class);
+        system.debug('@@@@access_token@@'+resp1 );
+        return resp1.access_token;
+    }
+    
+    @AuraEnabled
+    //public static list<Payment_History__c> callgetpaymentHistory (String customerRefId)
+    public static list<wrapPaymentHistory> callgetpaymentHistory (String customerRefId)
+    {
+        SendCustomerUsingRESTAPI custmr = new SendCustomerUsingRESTAPI();
+        String accessToken;
+        accessToken = custmr.ReturnAccessToken (custmr);
+        //accessToken = custmr.ReturnAccessToken ();
+        //list<Payment_History__c> LstPaymentHistory=new List<Payment_History__c>();
+        list<wrapPaymentHistory> LstPaymentHistory=new List<wrapPaymentHistory>();
+        if(Test.isRunningTest()){
+            accessToken='776677';
+            
+        }
+        if(accessToken != null){
+            
+            
+            String endPoint = 'https://ap16.salesforce.com/services/apexrest/v1/getPaymentHistory/' +customerRefId;
+            
+            
+            //String endPoint = 'https://ap16.salesforce.com/services/apexrest/v1/getPaymentHistory/' +customerRefId;
+            Http h2 = new Http(); 
+            HttpRequest req1 = new HttpRequest();
+            req1.setHeader('Authorization','Bearer ' + accessToken);
+            req1.setHeader('Content-Type','application/json');
+            req1.setHeader('accept','application/json');
+            //req1.setBody(jsonstr);
+            req1.setMethod('GET');
+            req1.setEndpoint(endPoint);
+            HttpResponse res1 = h2.send(req1);
+            String trimmedResponse = res1.getBody().unescapeCsv().remove('\\');
+            system.debug('@@@RESPONSE@@'+trimmedResponse);
+            JSONParser parser = JSON.createParser(res1.getBody());
+            //set<Payment_History__c> paymentHistoryList=new set<Payment_History__c>();
+            set<wrapPaymentHistory> paymentHistoryList=new set<wrapPaymentHistory>();
+            try{
+                while (parser.nextToken() != null) {
+                    //Id
+                    
+                    if((parser.getCurrentToken() == JSONToken.FIELD_NAME) ){
+                        //Payment_History__c ph;
+                        wrapPaymentHistory ph;
+                        if ((parser.getCurrentToken() == JSONToken.FIELD_NAME) && (parser.getText() == 'Id')) {
+                            parser.nextToken();
+                            string sId= parser.getText();
+                            //ph=new Payment_History__c();
+                            ph=new wrapPaymentHistory();
+                            
+                            system.debug('Id@@@'+sId);
+                            
+                            parser.nextToken();
+                            
+                            if ((parser.getCurrentToken() == JSONToken.FIELD_NAME) && 
+                                (parser.getText() == 'Customer_Account_Number__c')) {
+                                    // Get the value.
+                                    parser.nextToken();
+                                    // Compute the grand total price for all invoices.
+                                    string cusAccNumber= parser.getText();
+                                    //ph.Customer_Account_Number__c=Decimal.valueOf(cusAccNumber);
+                                    String encryptedResult = CryptoUtil.encyptData(cusAccNumber);
+                                    //ph.customerAccountNumber=Decimal.valueOf(cusAccNumber);
+                                    ph.customerAccountNumber=encryptedResult;
+                                    system.debug('cusAccNumber@@@' + cusAccNumber );
+                                }
+                            
+                            parser.nextToken();
+                            if ((parser.getCurrentToken() == JSONToken.FIELD_NAME) && 
+                                (parser.getText() == 'Payment_Date__c')) {
+                                    // Get the value.
+                                    parser.nextToken();
+                                    // Compute the grand total price for all invoices.
+                                    string paymentDate= parser.getText();
+                                    //ph.Payment_Date__c=Date.valueOf(paymentDate);
+                                    ph.paymentDate=Date.valueOf(paymentDate);
+                                    system.debug('paymentDate@@@' + paymentDate );
+                                }
+                            
+                            parser.nextToken();
+                            if ((parser.getCurrentToken() == JSONToken.FIELD_NAME) && 
+                                (parser.getText() == 'Name')) {
+                                    // Get the value.
+                                    parser.nextToken();
+                                    // Compute the grand total price for all invoices.
+                                    string paymentNumber= parser.getText();
+                                    //ph.Payment_Number__c=Integer.valueOf(paymentNumber);
+                                    ph.paymentNumber=Integer.valueOf(paymentNumber);
+                                    system.debug('paymentNumber@@@' + paymentNumber );
+                                }
+                            parser.nextToken();
+                            if ((parser.getCurrentToken() == JSONToken.FIELD_NAME) && 
+                                (parser.getText() == 'Amount__c')) {
+                                    // Get the value.
+                                    parser.nextToken();
+                                    // Compute the grand total price for all invoices.
+                                    string amount= parser.getText();
+                                    //ph.Amount__c=Integer.valueOf(amount);
+                                    ph.Amount=Integer.valueOf(amount);    
+                                    system.debug('amount@@@' + amount );
+                                }
+                            
+                            
+                            
+                        }
+                        paymentHistoryList.add(ph); 
+                    }
+                    
+                    
+                    
+                    paymentHistoryList.remove(null);
+                    
+                }
+                LstPaymentHistory.AddAll(paymentHistoryList);
+                system.debug('ContList@@@@'+Json.serialize(LstPaymentHistory));
+                
+               //  integer i = 0/100;
+               // integer j = 100/0;
+                
+                return LstPaymentHistory;
+                
+               
+            }
+            
+            catch(Exception ex){
+                System.debug('=Exception='+ex);
+                HandleCustomException.LogException(ex);
+            }
+        }
+        
+        
+        return LstPaymentHistory;
+    }
+    
+    @AuraEnabled
+    public static String findReferenceId(String caseId){
+        Case c = [select Id,AccountId__c from Case where Id=:caseId];
+        String refID = c.AccountId__c;
+        return refID;
+    }
+    
+    @AuraEnabled
+    public static List<Policy__c> policies(String caseId){
+        List<Policy__c> policyList = [select Id,Name,Policy_Number__c,Relationship__c,Installment_Premium__c,Policy_Status__c from Policy__c where Case__c=:caseId];
+        return policyList;
+    }
+    
+    public class wrapPaymentHistory{
+        @AuraEnabled
+        Public String customerAccountNumber{get;set;}
+        @AuraEnabled
+        public Date paymentDate{get;set;}
+        @AuraEnabled
+        public Integer paymentNumber{get;set;}
+        @AuraEnabled
+        Public Integer Amount{get;set;}
+        
+    }
+}
