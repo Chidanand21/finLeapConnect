@@ -1,0 +1,36 @@
+@isTest
+private class getPaymentHistoryTest {
+    @isTest static void testCallout() {
+        //ARRANGE - setup request like the external system would....
+        Account a = new Account();
+        a.Name='SFDC';
+        insert a;
+        Payment_History__c p = new Payment_History__c();
+        p.Name='SFDC';
+        p.Customer__c = a.Id;
+        insert p;
+        
+        RestRequest req = new RestRequest(); 
+        //RestResponse res = new RestResponse();
+        List<Payment_History__c> res = new List<Payment_History__c>();
+        getPaymentHistory ph = new getPaymentHistory();
+        
+        req.requestURI = 'https://ap16.salesforce.com/services/apexrest/getPaymentHistory/'+p.Id;
+        
+        req.addHeader('Content-Type', 'application/json');
+        req.httpMethod = 'GET';
+        req.requestBody = Blob.valueof('{}');
+        
+        RestContext.request = req;
+        //RestContext.response= res;
+        
+        
+        //ACT - make the request from inside the test execution context, rather than from the external system
+        Test.startTest();
+        res = getPaymentHistory.fetchPaymentHistory();
+        Test.stopTest();
+        
+    }
+    
+    
+}
