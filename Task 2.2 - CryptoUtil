@@ -1,0 +1,22 @@
+public class CryptoUtil
+{
+    // This should be stored and referred from custom setting. Don't hard code here. For demo purpose i have hard coded.
+    static Blob encryptionKey = Blob.valueOf('8cPkWGCoHv9a3D7K');
+ 
+    public static string encyptData(String decryptedString)
+    {
+        Blob data = Blob.valueOf(decryptedString);
+        Blob encryptedBlobData = Crypto.encryptWithManagedIV('AES128', encryptionKey , data );
+        String base64EncryptedString = EncodingUtil.base64Encode(encryptedBlobData);
+        return base64EncryptedString;
+    }
+   
+    public static string decryptData(String encryptedString)
+    {
+        Blob data = EncodingUtil.base64Decode(encryptedString);
+        Blob decryptedBlobData = Crypto.decryptWithManagedIV('AES128', encryptionKey , data);
+        String decryptedString= decryptedBlobData.toString();
+        return decryptedString;
+    }
+ 
+}
