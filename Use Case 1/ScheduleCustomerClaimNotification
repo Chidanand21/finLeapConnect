@@ -1,0 +1,5 @@
+global class ScheduleCustomerClaimNotification implements Schedulable {
+    global void execute(SchedulableContext SC) {
+        ScheduleCustomerClaimNotification claimNotification = new ScheduleCustomerClaimNotification(); 
+    }
+}
