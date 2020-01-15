@@ -1,0 +1,16 @@
+global class RestApiMock implements HttpCalloutMock {
+
+    global HTTPResponse respond(HTTPRequest request) {
+
+        // Create a fake response
+        HttpResponse response = new HttpResponse();
+        response.setHeader('Content-Type', 'application/json');
+        //response.setBody('[{"attributes":{"type":"Payment_History__c","url":"/services/data/v47.0/sobjects/Payment_History__c/a002w000002D1CFAA0"},"Id":"a002w000002D1CFAA0","Customer_Account_Number__c":555,"Payment_Date__c":"2020-01-22T20:00:00.000+0000","Name":"4545","Amount__c":55.00,"Customer__c":"0012w0000048mrBAAQ"},{"attributes":{"type":"Payment_History__c","url":"/services/data/v47.0/sobjects/Payment_History__c/a002w000002D1nxAAC"},"Id":"a002w000002D1nxAAC","Customer_Account_Number__c":4545,"Payment_Date__c":"2020-01-28T20:00:00.000+0000","Name":"4534534","Amount__c":54354.00,"Customer__c":"0012w0000048mrBAAQ"}]');
+        response.setBody('{"attributes":{"type":"Payment_History__c","url":"/services/data/v47.0/sobjects/Payment_History__c/a002w000002D1CFAA0"},"Id":"a002w000002D1CFAA0","Customer_Account_Number__c":555,"Payment_Date__c":"2020-01-22T20:00:00.000+0000","Name":"4545","Amount__c":55.00,"Customer__c":"0012w0000048mrBAAQ"},ces/data/v47.0/sobjects/Payment_History__c/a002w000002D1nxAAC"}');
+
+        response.setStatusCode(200);
+        return response; 
+
+    } 
+
+}
