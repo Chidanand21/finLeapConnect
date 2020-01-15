@@ -1,0 +1,39 @@
+({
+	getAllPaymentHistories : function(component,event,refId) {
+		//alert('=refId='+refId);
+        var action = component.get("c.callgetpaymentHistory");
+        action.setParams({ customerRefId : refId });
+
+        
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+               
+                //alert("All Payment History" + JSON.stringify(response.getReturnValue()));
+				component.set("v.paymentHistoryList",response.getReturnValue());
+            }
+           
+        });
+
+        
+        $A.enqueueAction(action);
+	},
+    getPolicies:function(component,event,helper){
+        var action = component.get("c.policies");
+        var recId = component.get("v.recordId");
+        action.setParams({ caseId : recId });
+
+        
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+               
+                component.set("v.policyList",response.getReturnValue())
+            }
+           
+        });
+
+        
+        $A.enqueueAction(action);
+    }
+})
