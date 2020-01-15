@@ -1,0 +1,58 @@
+({  
+    UpdateDocument : function(component,event,Id) {  
+        var action = component.get("c.UpdateFiles");  
+        var fName = component.find("fileName").get("v.value");  
+        
+        if(fName == 'Other File'){
+            fName =  component.find("otherFileName").get("v.value"); 
+        }
+        //alert('File Name'+fName);
+        
+        action.setParams({"documentId":Id,  
+                          "title": fName,  
+                          "recordId": component.get("v.recordId")  
+                         });  
+        action.setCallback(this,function(response){  
+            var state = response.getState();  
+            if(state=='SUCCESS'){  
+                var result = response.getReturnValue();  
+                console.log('Result Returned: ' +result);  
+                component.find("fileName").set("v.value", " ");  
+                component.set("v.files",result);  
+            }  
+        });  
+        $A.enqueueAction(action);  
+    },  
+    
+    verifyFileVersions : function(component,event,helper,fileType){
+         var action = component.get("c.verifyExistingFileVersions");
+        //alert(fileType);
+        action.setParams({
+            "title":fileType,
+            "recId":component.get("v.recordId")
+        });
+        action.setCallback(this,function(response){  
+            var state = response.getState();  
+            if(state=='SUCCESS'){  
+                var result = response.getReturnValue(); 
+               // alert(result);
+                if(result.length > 0){
+                    component.set("v.currentVersion",result);
+                    
+                    //Toast Message
+                    var toastEvent = $A.get("e.force:showToast");  
+                    toastEvent.setParams({  
+                        "title": "Warning!",  
+                        "message": "A version of this file already exist",
+                        "type":"warning"
+                    });  
+                    toastEvent.fire(); 
+                }
+                else{
+                    component.set("v.currentVersion",null);
+                }
+            }  
+        });  
+        $A.enqueueAction(action);
+    }
+})
