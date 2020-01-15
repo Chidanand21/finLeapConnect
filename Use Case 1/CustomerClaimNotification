@@ -1,0 +1,61 @@
+global class CustomerClaimNotification implements Database.Batchable<sObject>, Database.Stateful{
+    
+    global List<String> emailList = new List<String>();
+    global List<Account> accountList = new List<Account>(); 
+    
+    global Database.QueryLocator start(Database.BatchableContext bc){
+        String soqlQuery = 'SELECT Id,Name,Customer_Email__c,Status__c,Claim_Notification_Sent__c From Account where Status__c= \'Approved\' AND Claim_Notification_Sent__c=false AND Customer_Email__c!=null';   
+        return Database.getQueryLocator(soqlQuery);
+    }
+    
+    global void execute(Database.BatchableContext bc, List<Account> scope){
+        
+        for (Account acc : scope){
+            if(acc.Customer_Email__c!=null){
+                emailList.add(acc.Customer_Email__c);
+                accountList.add(acc);
+            }
+        }
+    }
+    
+    global void finish(Database.BatchableContext bc){
+        System.debug(emailList);  
+        System.debug(emailList);
+        // Send an email to the Apex job's submitter notifying of job completion.  
+        //Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        List<Messaging.SingleEmailMessage> pendingEmailAlert = new List<Messaging.SingleEmailMessage>();
+
+        List<Task> taskEmailList = new List<Task>();
+        for(Account a:accountList){
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(emailList);
+            mail.setSubject('Claim Approved!!');
+            mail.setUseSignature(true);
+			mail.setBccSender(true);
+            mail.setPlainTextBody('Dear ' + a.Name +','+' '+
+                                  'Your claim is approved. You will receive the approved amount in 3-5 days.');
+            pendingEmailAlert.add(mail);
+            
+            //Create Email Task
+            Task t = new Task();
+            t.WhatId = a.Id;
+            t.Status = 'Completed';
+            t.Subject = 'Email';
+            t.Description = 'Dear ' + a.Name +' '+'Your claim is approved. You will receive the approved amount in 3-5 days.';
+       		taskEmailList.add(t);
+        }
+        Messaging.sendEmail(pendingEmailAlert);
+        
+        //Create Email in Salesforce
+        
+        if(taskEmailList.size()>0){
+            insert taskEmailList;
+        }
+        
+        //Update all the notified records
+        for(Account ac:accountList){
+            ac.Claim_Notification_Sent__c = true;   
+        }
+        update accountList;
+    }
+}
