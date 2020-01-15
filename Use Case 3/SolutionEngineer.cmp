@@ -1,0 +1,21 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <div>
+        <lightning:recordEditForm
+                                  onload="{!c.handleOnLoad}"
+                                  onsubmit="{!c.handleOnSubmit}"
+                                  onsuccess="{!c.handleOnSuccess}"
+                                  recordId="{!v.recordId}"
+                                  objectApiName="Opportunity">
+            <!-- the messages component is for error messages -->
+            
+            
+            <lightning:inputField fieldName="Solution_Engineer_Stage__c" />
+            <lightning:inputField fieldName="Solution_Engineer__c" />
+            <lightning:inputField fieldName="Description_SE__c" />
+            <lightning:inputField fieldName="Next_Steps_SE__c" />
+            <lightning:outputField fieldName="Current_Solution_Engineer_Stage_Age__c"/>
+            <div class="slds-m-top_medium">
+                <lightning:button variant="brand" type="submit" name="save" label="Save" />        </div>
+        </lightning:recordEditForm>
+    </div>
+</aura:component>
